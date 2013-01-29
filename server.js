@@ -139,10 +139,13 @@ io.sockets.on('connection', function (sk) {
   sk.on('setup', function (data) {
   	 //remove this event once match is found and setup is complete  
 	  sk.on('disconnect', function(){
-	  		var index = queue[skColor].indexOf(sk);
-	  		console.log("Removing from queue");
-	  		queue[skColor].splice(index,1);
+		  	if(!!queue(skColor)){
+				var index = queue[skColor].indexOf(sk);
+				console.log("Removing from queue");
+				queue[skColor].splice(index,1);
+			}
 	  });
+	  console.log(data);
   	skColor = data.color;
   	if(!skColor){skColor = 'U';}
   	

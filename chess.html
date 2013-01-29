@@ -29,7 +29,18 @@
     position: absolute;
     top: 0px;
     left: 0px;
-
+  }
+  .overscreen{
+	  width: 500px;
+	  height: 300px;
+	  background: #FFF;
+	  border: 2px black solid;
+	  margin: 100px auto 0px auto;
+	  clear: both;
+  }
+  .initial span{
+	  font-size: 10px;
+	  display: block;
   }
   .chessboard{
     width: 600px;
@@ -57,7 +68,10 @@
     background-color: #FFF;
   }
   .chessboard div.movable{
-    background-color: green;
+	  background-color: green;
+	  box-shadow: inset 0px 0px 0px 2px rgb(0,100,0);
+	  -moz-box-shadow: inset 0px 0px 0px 2px rgb(0,100,0);
+	  -webkit-box-shadow: inset 0px 0px 0px 2px rgb(0,100,0);
   }
   .chessboard div.attackable{
     background-color: red;
@@ -65,31 +79,25 @@
   .chessboard div.selected{
     background-color: yellow;
   }
-  .selection{
-    display: none;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0px;
-    left: 0px;
+  .selection a, .initial a{
+	  cursor: pointer;
+	  padding: 10px;
+	  width: 105px;
+	  padding-top: 100px;
+	  height: 190px;
+	  display: block;
+	  float: left;
+	  text-align: center; 
   }
-  .selection div{
-    width: 500px;
-    height: 300px;
-    background: #FFF;
-    border: 2px black solid;
-    margin: 100px auto 0px auto;
+  .initial h2{
+	  display: block;
   }
-  .selection div a{
-   cursor: pointer;
-padding: 10px;
-width: 105px;
-padding-top: 100px;
-height: 190px;
-display: inline-block;
-text-align: center; 
- }
- .selection div a:hover{
+  .initial a{
+	  height: 100px;
+	  width: 146px;
+  }
+
+  .selection a:hover, .initial a:hover{
 	 background: #CCC;
  }
   .chat{
@@ -206,13 +214,16 @@ text-align: center;
 	</div><!--/#container -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="scripts.js"> </script>
+<script src="ui.js"> </script>
 
 <script>
- /* var socket = io.connect('http://localhost:8000');
-  socket.on('update', function (data) {
-    console.log(data);
-    socket.emit('movemade', { my: 'data' });
-  });*/
+var settings = {
+      containerID : "container",
+      online: true,
+      preferredColor: false
+    };
+    CHESSAPP.GamePlay.init(settings);
+
 </script>
 </body>
 </html>
