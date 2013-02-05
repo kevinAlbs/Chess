@@ -1,229 +1,236 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Chess</title>
-  <meta name="description" content="The HTML5 Herald">
-  <meta name="author" content="SitePoint">
-  
-  <!--[if lt IE 9]>
-  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
-  <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
-  <style>
-  *{
-    margin: 0px;
-    padding: 0px;
-    font-family: 'Droid Sans', sans-serif;
-  }
-  #container{
-    width: 960px;
-    margin: 0px auto;
-    position: relative;
-  }
-  .overlay{
-    width: 100%;
-    height: 665px;
-    display: none;
-    background: rgba(255,255,255, .65);
-    position: absolute;
-    top: 0px;
-    left: 0px;
-  }
-  .overscreen{
-	  width: 500px;
-	  height: 300px;
-	  background: #FFF;
-	  border: 2px black solid;
-	  margin: 100px auto 0px auto;
-	  clear: both;
-  }
-  .initial span{
-	  font-size: 10px;
-	  display: block;
-  }
-  .chessboard{
-    width: 600px;
-    height: 600px;
-    border: 2px #bbc8f0 solid;
-    float: left;
-  }
-  .chessboard div{
-    width: 12.5%;
-    height: 12.5%;
-    float: left;
+	<head>
+		<meta charset="utf-8">
+		<title>Chess</title>
+		<meta name="description" content="The HTML5 Herald">
+		<meta name="author" content="SitePoint">
 
-  }
-  .chessboard div img{
-    width: 100%;
-    height: 100%;
-  }
-  .chessboard div p{
-    position: absolute;
-  }
-  .chessboard div.B{
-    background-color: #bbc8f0;
-  }
-  .chessboard div.W{
-    background-color: #FFF;
-  }
-  .chessboard div.movable{
-	  background-color: green;
-	  box-shadow: inset 0px 0px 0px 2px rgb(0,100,0);
-	  -moz-box-shadow: inset 0px 0px 0px 2px rgb(0,100,0);
-	  -webkit-box-shadow: inset 0px 0px 0px 2px rgb(0,100,0);
-  }
-  .chessboard div.attackable{
-    background-color: red;
-  }
-  .chessboard div.selected{
-    background-color: yellow;
-  }
-  .selection a, .initial a{
-	  cursor: pointer;
-	  padding: 10px;
-	  width: 105px;
-	  padding-top: 100px;
-	  height: 190px;
-	  display: block;
-	  float: left;
-	  text-align: center; 
-  }
-  .initial h2{
-	  display: block;
-  }
-  .initial a{
-	  height: 100px;
-	  width: 146px;
-  }
+		<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+		<style>
+			*{
+				margin: 0px;
+				padding: 0px;
+				font-family: 'Droid Sans', sans-serif;
+			}
+			#container{
+				width: 960px;
+				margin: 0px auto;
+				position: relative;
+			}
+			.overlay{
+				width: 100%;
+				height: 665px;
+				display: none;
+				background: rgba(255,255,255, .65);
+				position: absolute;
+				top: 0px;
+				left: 0px;
+			}
+			.overscreen{
+				width: 500px;
+				height: 300px;
+				background: #FFF;
+				border: 2px black solid;
+				margin: 100px auto 0px auto;
+				clear: both;
+			}
+			.color span{
+				font-size: 10px;
+				display: block;
+			}
+			.chessboard{
+				width: 600px;
+				height: 600px;
+				border: 2px #bbc8f0 solid;
+				float: left;
+			}
+			.chessboard div{
+				width: 12.5%;
+				height: 12.5%;
+				float: left;
 
-  .selection a:hover, .initial a:hover{
-	 background: #CCC;
- }
-  .chat{
-    width: 300px;
-    height: 250px;
-    padding: 20px;
-    min-height: 20px;
-    border: 2px #bbc8f0 solid;
-    float: right;
-  }
+			}
+			.chessboard div img{
+				width: 100%;
+				height: 100%;
+			}
+			.chessboard div p{
+				position: absolute;
+			}
+			.chessboard div.B{
+				background-color: #bbc8f0;
+			}
+			.chessboard div.W{
+				background-color: #FFF;
+			}
+			.chessboard div.movable{
+				background-color: green;
+				box-shadow: inset 0px 0px 0px 2px rgb(0,100,0);
+				-moz-box-shadow: inset 0px 0px 0px 2px rgb(0,100,0);
+				-webkit-box-shadow: inset 0px 0px 0px 2px rgb(0,100,0);
+			}
+			.chessboard div.attackable{
+				background-color: red;
+			}
+			.chessboard div.selected{
+				background-color: yellow;
+			}
+			.selection a, .color a, .initial a{
+				cursor: pointer;
+				padding: 10px;
+				width: 105px;
+				padding-top: 100px;
+				height: 190px;
+				display: block;
+				float: left;
+				text-align: center; 
+			}
+			.color h2{
+				display: block;
+			}
+			.color a, .initial a{
+				height: 100px;
+				width: 146px;
+			}
+			.initial a{
+				width: 230px;
+			}
 
-  .chat p{
-    color: #000;
-    font-family: 'Droid Sans', sans-serif;
-  }
-  .chat input{
-    width : 94%;
-    background: #f0e1bb;
-    color: #6f7aa3;
-    font-style: italic;
-    border: 1px #a3915e solid;
-    font-size: 12px;
-    height: 27px;
-    padding: 0px 3%;
-    -webkit-transition: background .2s linear;
-    outline: none;
+			.selection a:hover, .color a:hover, .initial a:hover{
+			background: #CCC;
+			}
+			.chat{
+			width: 300px;
+			height: 250px;
+			padding: 20px;
+			min-height: 20px;
+			border: 2px #bbc8f0 solid;
+			float: right;
+			display: none;
+			}
+			.chat.active{
+				display: block;
+			}
 
-  }
-  .chat input:focus{
-    font-style: normal;
-    background: #fff4d7;
-    color: #0b2a41;
-  }
-  .chat h2{
-    font-weight: normal;
-    color: #6f7da3;
-    font-size: 24px;
-  }
-  .chat .chatContainer{
-    overflow: auto;
-    height: 165px;
-    margin: 15px 0px;
-  }
-  .chat .chatContainer p{
-    font-size: 14px;
-  }
-  .status{
-    background: #f0e1bb;
-    padding-left: 12px;
-    height: 40px;
-    overflow: hidden;
-    margin: 20px 0px;
-    position: relative;
-  }
-  .status .arrow_up, .status .arrow_down{
-    position: absolute;
-    z-index: 2;
-    text-align: center;
-    right: 0px;
-    display: block;
-    width: 20px;
-    height: 20px;
-    background-color: #6f7da3;
-    cursor: pointer;
-    -webkit-transition: background-color .2s linear;
-    -moz-transition: background-color .2s linear;
-    -o-transition: background-color .2s linear;
-    -ms-transition: background-color .2s linear;
-    transition: background-color .2s linear;
-  }
-  .status .arrow_up:hover, .status .arrow_down:hover{
-    background-color: #bbc8f0;
-  }
-  .status.upDisabled .arrow_up, .status.downDisabled .arrow_down{
-    background-color: #9b9b9b;
-    -webkit-transition: none;
-    -moz-transition: none;
-    -o-transition: none;
-    -ms-transition: none;
-    transition: none;
-  }
-  .status .arrow_up{
-    top: 0px;
-    background: url("images/arrow_up.png") no-repeat center #6f7da3;
-  }
-  .status .arrow_down{
-    bottom: 0px;
-    background: url("images/arrow_down.png") no-repeat center #6f7da3;
-  }
-  .status p{
-    color: #0b2a41;
-    font-size: 13px;
-    padding: 2px 0px;
-    margin: 0px;
-    font-family: 'Droid Sans', sans-serif;
-  }
-  .status p.e{
-    color: #541717;
-  }
-  .status p.s{
-    color: #175419;
-  }
-  .status time{
-    color: #54686b;
-    margin-right: 5px;
-  }
-  </style>
-  
+			.chat p{
+			color: #000;
+			font-family: 'Droid Sans', sans-serif;
+			}
+			.chat input{
+			width : 94%;
+			background: #f0e1bb;
+			color: #6f7aa3;
+			font-style: italic;
+			border: 1px #a3915e solid;
+			font-size: 12px;
+			height: 27px;
+			padding: 0px 3%;
+			-webkit-transition: background .2s linear;
+			outline: none;
 
-</head>
-<body>
+			}
+			.chat input:focus{
+			font-style: normal;
+			background: #fff4d7;
+			color: #0b2a41;
+			}
+			.chat h2{
+			font-weight: normal;
+			color: #6f7da3;
+			font-size: 24px;
+			}
+			.chat .chatContainer{
+			overflow: auto;
+			height: 165px;
+			margin: 15px 0px;
+			}
+			.chat .chatContainer p{
+			font-size: 14px;
+			}
+			.status{
+			background: #f0e1bb;
+			padding-left: 12px;
+			height: 40px;
+			overflow: hidden;
+			margin: 20px 0px;
+			position: relative;
+			}
+			.status .arrow_up, .status .arrow_down{
+			position: absolute;
+			z-index: 2;
+			text-align: center;
+			right: 0px;
+			display: block;
+			width: 20px;
+			height: 20px;
+			background-color: #6f7da3;
+			cursor: pointer;
+			-webkit-transition: background-color .2s linear;
+			-moz-transition: background-color .2s linear;
+			-o-transition: background-color .2s linear;
+			-ms-transition: background-color .2s linear;
+			transition: background-color .2s linear;
+			}
+			.status .arrow_up:hover, .status .arrow_down:hover{
+			background-color: #bbc8f0;
+			}
+			.status.upDisabled .arrow_up, .status.downDisabled .arrow_down{
+			background-color: #9b9b9b;
+			-webkit-transition: none;
+			-moz-transition: none;
+			-o-transition: none;
+			-ms-transition: none;
+			transition: none;
+			}
+			.status .arrow_up{
+			top: 0px;
+			background: url("images/arrow_up.png") no-repeat center #6f7da3;
+			}
+			.status .arrow_down{
+			bottom: 0px;
+			background: url("images/arrow_down.png") no-repeat center #6f7da3;
+			}
+			.status p{
+			color: #0b2a41;
+			font-size: 13px;
+			padding: 2px 0px;
+			margin: 0px;
+			font-family: 'Droid Sans', sans-serif;
+			}
+			.status p.e{
+			color: #541717;
+			}
+			.status p.s{
+			color: #175419;
+			}
+			.status time{
+			color: #54686b;
+			margin-right: 5px;
+			}
+		</style>
 
-	<div id="container">
-	</div><!--/#container -->
-<script src="/socket.io/socket.io.js"></script>
-<script src="scripts.js"> </script>
-<script src="ui.js"> </script>
 
-<script>
-var settings = {
-      containerID : "container",
-      online: true,
-      preferredColor: false
-    };
-    CHESSAPP.GamePlay.init(settings);
+	</head>
+	<body>
 
-</script>
-</body>
+		<div id="container">
+		</div><!--/#container -->
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="scripts.js"> </script>
+		<script src="ui.js"> </script>
+
+		<script>
+			var settings = {
+				containerID : "container",
+				online: true,
+				preferredColor: false
+			};
+			CHESSAPP.GamePlay.init(settings);
+
+		</script>
+	</body>
 </html>

@@ -241,10 +241,17 @@ CHESSAPP.Analyzer ={
             case "pawn": 
               
               var tmp = mk(curx,cury + 1 * flip, true, false);
-              if(!piece.hasMoved && tmp){
+              if(piece.numOfMoves == 0 && tmp){
                 //if the pawn hasn't yet move, add the second space available
                 mk(curx, cury + 2 * flip, true, false);
               }
+	      //check for en passant on both sides
+	      /*
+	      var rp = CHESSAPP.Analyzer.pieceExists({pieces: pieces, x: (curx + 1), y: cury});
+              if(rp && rp.justMoved && rp.color != piece.color){
+		      mk(curx + 1, cury + 1 * flip, true, true);
+	      }
+	      */
               //check if pieces in either attack location
               if(CHESSAPP.Analyzer.pieceExists({pieces: pieces, x: (curx + 1), y: (cury + 1 * flip)})){
                 mk(curx + 1,cury + 1 * flip, false, true);
@@ -693,34 +700,37 @@ CHESSAPP.Analyzer ={
             online: _settings.online
           };
 
-          that.cells = CHESSAPP.ui.init(p);
+	  that.cells = CHESSAPP.ui.init(p);
+	  //get initial setting information from user
+	  that.lock();
+	  //wait for user to pick a color and online/offline play
+	  CHESSAPP.ui.onInitialChoice(function(pref){
+		  console.log(pref);
+		  if(pref.hasOwnProperty("color")){
+			  _settings.preferredColor = pref.color;
+		  }
+		  if(pref.hasOwnProperty("online")){
+			  _settings.online = pref.online;
+		  }
+		  console.log(_settings);
+		  //now check if local or online connect
+		  if(_settings.online){
+			  console.log("connecting...");
+			  CHESSAPP.onlinePlay.connect(_settings, function(){
+				  that.setUpBoard.apply(that);
+			  });
+		  } 
+		  else{
+			  CHESSAPP.ui.statusUpdate({type: "fb", msg: "Playing locally"});
+			  that.setUpBoard();
+		  }
+	  });
 
-          if(_settings.online){
-            that.lock();
-	    //wait for user to pick a color
-	    CHESSAPP.ui.onInitialChoice(function(pref){
-		    console.log(pref);
-		    if(!!pref.color){
-			    _settings.preferredColor = pref.color;
-		    }
-		    console.log(_settings);
-		    //now connect
-		    console.log("connecting...");
-		    CHESSAPP.onlinePlay.connect(_settings, function(){
-			    that.setUpBoard.apply(that);
-		    });
-	    });
-
-	  }
-          else{
-            that.updateStatus({type: "fb", msg: "Playing locally"});
-            that.setUpBoard();
-          }
         };
 
         /*
         *this funciton locks out certain features until unlocked
-        *
+        *TODO implement
         *
         */
         that.lock = function(stg){
@@ -787,7 +797,13 @@ CHESSAPP.Analyzer ={
             y: 7,
             color: 'W',
             pieceType: "knight"
-          }
+          },
+	  {
+		  x: 2,
+		  y: 3,
+		  color: 'W',
+		  pieceType: "pawn"
+	  }
           ];
           //add pawns
           for(var p = 0; p < 8; p++)
@@ -795,7 +811,7 @@ CHESSAPP.Analyzer ={
             that.pieces.push({
               x : p,
               y: 1,
-              color: (p == 0) ? 'W' : 'B',
+              color: 'B',
               pieceType: "pawn"
             });
           }
@@ -808,6 +824,10 @@ CHESSAPP.Analyzer ={
               pieceType: "pawn"
             });
           }
+	  //set initial numOfMoves to 0
+	  for(var i = 0; i < that.pieces.length; i++){
+		  that.pieces[i].numOfMoves = 0;
+	  }
           CHESSAPP.ui.drawPieces(that.pieces,that.cells);
           that.updateOptions();
       };
@@ -956,7 +976,8 @@ CHESSAPP.Analyzer ={
 
           piece.y = y;
           piece.x = x;
-          piece.hasMoved = true;
+          piece.numOfMoves++;
+
           that.switchTurn(); //switch the turn
           that.addToMoveList(moveData);//add the move to the move list
           that.clearAllOptionStyles();//clear all of the option styles
