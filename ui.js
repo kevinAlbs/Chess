@@ -366,9 +366,9 @@ CHESSAPP.ui = {
 					y: y
 				};
 				/* just for testing */
-				/* var coords = document.createElement("p");
+				 var coords = document.createElement("p");
 				   coords.innerHTML = x + " , " + y;
-				   cells[x][y].reference.appendChild(coords);*/
+				   cells[x][y].reference.appendChild(coords);
 				frag.appendChild(clone);
 			}
 

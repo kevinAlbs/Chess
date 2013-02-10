@@ -220,7 +220,22 @@
 		<div id="container">
 		</div><!--/#container -->
 		<script src="/socket.io/socket.io.js"></script>
-		<script src="scripts.js"> </script>
+		<script>
+			/**
+			* Online chess game with websockets, webworkers, and more
+			* @namespace CHESSAPP
+			*/
+			var CHESSAPP = {};
+			/**
+			* Directory where resources for chess pieces are
+			* @property imageDir
+			*/  
+			CHESSAPP.globalSettings = {
+				imageDir : "images/"
+			}
+		</script>
+  		<script src="utils.js"></script> 
+		<script src="logic.js"> </script>
 		<script src="ui.js"> </script>
 
 		<script>
