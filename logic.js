@@ -17,6 +17,7 @@ CHESSAPP.Analyzer ={
 		};
 
 		for(var i = 0; i < pieces.length; i++){
+			pieces[i].justMoved = false;
 			var r = this.getOptions({pieces: pieces, piece: pieces[i], checkTest : false});
 			if(r && r.checkDetected){//problem is that options is an ARRAY! not an object
 				if(r.checkDetected){
@@ -103,7 +104,7 @@ CHESSAPP.Analyzer ={
 				}
 				//check for en passant on both sides
 				var rp = CHESSAPP.Analyzer.pieceExists({pieces: pieces, x: (curx + 1), y: cury});
-				if(rp && rp.color != piece.color && rp.pieceType == "pawn"){
+				if(rp && rp.color != piece.color && rp.pieceType == "pawn" && rp.justMoved){
 					var special = {
 						type: "en",
 						enx : curx + 1,
@@ -113,7 +114,7 @@ CHESSAPP.Analyzer ={
 				}
 				//check for en passant on both sides
 				var rp = CHESSAPP.Analyzer.pieceExists({pieces: pieces, x: (curx - 1), y: cury});
-				if(rp && rp.color != piece.color && rp.pieceType == "pawn"){
+				if(rp && rp.color != piece.color && rp.pieceType == "pawn" && rp.justMoved){
 					var special = {
 						type: "en",
 						enx : curx - 1,
@@ -726,6 +727,7 @@ that.setUpBoard = function(){
 	//set initial numOfMoves to 0
 	for(var i = 0; i < that.pieces.length; i++){
 		that.pieces[i].numOfMoves = 0;
+
 	}
 	CHESSAPP.ui.drawPieces(that.pieces,that.cells);
 	that.updateOptions();
@@ -891,6 +893,7 @@ that.movePieceTo = function(stg){
 	piece.y = y;
 	piece.x = x;
 	piece.numOfMoves++;
+	piece.justMoved = true;
 
 	that.switchTurn(); //switch the turn
 	that.addToMoveList(moveData);//add the move to the move list
