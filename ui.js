@@ -366,10 +366,13 @@ CHESSAPP.ui = {
 					y: y
 				};
 				/* just for testing */
+				if(CHESSAPP.globalSettings.debug){
 				 var coords = document.createElement("p");
 				   coords.innerHTML = x + " , " + y;
 				   cells[x][y].reference.appendChild(coords);
+				  }
 				frag.appendChild(clone);
+				
 			}
 
 

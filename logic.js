@@ -1,5 +1,6 @@
 /* class for analyzing state of any array of piece objects to see each of their optional moves
 */
+
 CHESSAPP.Analyzer ={
 	//information regarding whether the squares next to the kings are being attacked, which makes castling impossible
 	castlingInfo: {
@@ -880,27 +881,63 @@ that.setUpBoard = function(){
 		pieceType: "king"
 	},
 	{
-		x: 5,
+		x: 6,
 		y: 0,
 		color: 'B',
 		pieceType: "knight"
 	},
 	{
-		x: 5,
+		x: 1,
+		y: 0,
+		color: 'B',
+		pieceType: "knight"
+	},
+	{
+		x: 6,
 		y: 7,
 		color: 'W',
 		pieceType: "knight"
 	},
 	{
-		x: 2,
-		y: 3,
+		x: 1,
+		y: 7,
 		color: 'W',
-		pieceType: "pawn"
+		pieceType: "knight"
+	},
+	{
+		x: 5,
+		y: 0,
+		color: 'B',
+		pieceType: "bishop"
+	},
+	{
+		x: 2,
+		y: 0,
+		color: 'B',
+		pieceType: "bishop"
+	},
+	{
+		x: 5,
+		y: 7,
+		color: 'W',
+		pieceType: "bishop"
+	},
+	{
+		x: 2,
+		y: 7,
+		color: 'W',
+		pieceType: "bishop"
 	},
 	{
 		x: 3,
 		y: 0,
 		color: 'B',
+		pieceType: "queen"
+	},	
+	{
+		x: 3,
+		y: 7,
+		color: 'W',
 		pieceType: "queen"
 	}
 	];
@@ -914,7 +951,7 @@ that.setUpBoard = function(){
 			pieceType: "pawn"
 		});
 	}
-	for(var p = 0; p < 0; p++)
+	for(var p = 0; p < 8; p++)
 	{
 		that.pieces.push({
 			x : p,
