@@ -1,6 +1,18 @@
 /* class for analyzing state of any array of piece objects to see each of their optional moves
 */
 CHESSAPP.Analyzer ={
+	//information regarding whether the squares next to the kings are being attacked, which makes castling impossible
+	castlingInfo: {
+		W: {
+			left: false,
+			right: false
+		},	
+		B: {
+			left: false,
+			right: false
+		}
+	},
+
 	/*
 	   returns an array of option arrays all corresponding to each piece index
 	   */
@@ -8,6 +20,13 @@ CHESSAPP.Analyzer ={
 		var stg = {
 			pieces: null
 		};
+
+		//reset the castling info
+		this.castlingInfo.B.left = false;
+		this.castlingInfo.B.right = false;
+		this.castlingInfo.W.left = false;
+		this.castlingInfo.W.right = false;
+
 		CHESSAPP.utils.extend(stg, settings);
 		var pieces = stg.pieces;
 		var max = pieces.length;
@@ -15,17 +34,57 @@ CHESSAPP.Analyzer ={
 			kingInCheck : false,
 			allOptions : []
 		};
-
+		var r,
+			whiteKingIndex,//temps for later
+			blackKingIndex;
 		for(var i = 0; i < pieces.length; i++){
-			pieces[i].justMoved = false;
-			var r = this.getOptions({pieces: pieces, piece: pieces[i], checkTest : false});
-			if(r && r.checkDetected){//problem is that options is an ARRAY! not an object
+			if(pieces[i] && pieces[i].pieceType == "king"){
+				if(pieces[i].color == "W"){
+					whiteKingIndex = i;
+				}
+				else{
+					blackKingIndex = i;
+				}
+			}
+			if(pieces[i] && CHESSAPP.GamePlay.getTurn() == pieces[i].color){//pieces can be null if taken
+				pieces[i].justMoved = false;
+			}
+			r = this.getOptions({pieces: pieces, piece: pieces[i], checkTest : false});
+			if(r && r.checkDetected){
 				if(r.checkDetected){
 					resp.kingInCheck = r.checkDetected;
 				}
 			}
+
 			resp.allOptions.push(r.pieceOptions);
 		}
+
+		//now check for castling here. The reason being that we need to know whether or not the two spaces
+		//on either side are being attacked. This is checked one by one for each piece, so the castling needs to be checked at the end
+
+		if(resp.kingInCheck != "W"){
+			//you cannot castle if you're in check
+			r = this.getOptions({pieces: pieces, piece: pieces[whiteKingIndex], checkTest: false, castleTest: true});
+			if(r && r.checkDetected){
+				if(r.checkDetected){
+					resp.kingInCheck = r.checkDetected;
+				}
+			}
+			console.log("HERE : " , r);
+			resp.allOptions[whiteKingIndex] = resp.allOptions[whiteKingIndex].concat(r.pieceOptions);
+		}
+		if(resp.kingInCheck != "B"){
+			resp.allOptions.push(r.pieceOptions);
+			r = this.getOptions({pieces: pieces, piece: pieces[blackKingIndex], checkTest: false, castleTest: true});
+			if(r && r.checkDetected){
+				if(r.checkDetected){
+					resp.kingInCheck = r.checkDetected;
+				}
+			}
+			resp.allOptions[blackKingIndex] = resp.allOptions[blackKingIndex].concat(r.pieceOptions);
+		}
+
+		resp.allOptions.push(r.pieceOptions);
 		return resp;
 	},
 	/*
@@ -43,7 +102,7 @@ CHESSAPP.Analyzer ={
 		for(var i = 0; i < pieces.length; i++){
 			var r = this.getOptions({pieces: pieces, piece: pieces[i], checkTest : color});   
 			if(r && r.checkDetected == color){
-				console.log("Check detected");
+				//console.log("Check detected");
 				return true;
 			}
 
@@ -58,7 +117,8 @@ CHESSAPP.Analyzer ={
 		var stg = {
 			pieces: null,
 			piece: null,
-			checkTest : false
+			checkTest : false,
+			castleTest: false
 		};
 		CHESSAPP.utils.extend(stg, settings);
 
@@ -86,7 +146,27 @@ CHESSAPP.Analyzer ={
 				resp.checkDetected = r.checkDetected;
 			}
 			if(r.valid){
-
+				if(stg.castleTest){
+					console.log("Adding castle", r);
+				}
+				if(!stg.checkTest){
+					if(piece.color == "B"){
+						if((x == 3 || x == 2) && y == 7){
+							CHESSAPP.Analyzer.castlingInfo.W.left = true;
+						}
+						else if((x == 5 || x == 6) && y == 7){
+							CHESSAPP.Analyzer.castlingInfo.W.right = true;
+						}
+					}
+					else if(piece.color == "W"){
+						if((x == 3 || x == 2)&& y == 0){
+							CHESSAPP.Analyzer.castlingInfo.B.left = true;
+						}
+						else if((x == 5 || x == 6) && y == 0){
+							CHESSAPP.Analyzer.castlingInfo.B.right = true;
+						}
+					}
+				}
 				pieceOptions.push(r);
 			}
 			return r.canMovePast;
@@ -104,7 +184,7 @@ CHESSAPP.Analyzer ={
 				}
 				//check for en passant on both sides
 				var rp = CHESSAPP.Analyzer.pieceExists({pieces: pieces, x: (curx + 1), y: cury});
-				if(rp && rp.color != piece.color && rp.pieceType == "pawn" && rp.justMoved){
+				if(rp != null && rp.color != piece.color && rp.pieceType == "pawn" && rp.justMoved && rp.numOfMoves == 1 && (rp.y == 3 || rp.y == 4)){
 					var special = {
 						type: "en",
 						enx : curx + 1,
@@ -113,8 +193,8 @@ CHESSAPP.Analyzer ={
 					mk(curx+1, cury + 1 * flip, true, true, special);
 				}
 				//check for en passant on both sides
-				var rp = CHESSAPP.Analyzer.pieceExists({pieces: pieces, x: (curx - 1), y: cury});
-				if(rp && rp.color != piece.color && rp.pieceType == "pawn" && rp.justMoved){
+				rp = CHESSAPP.Analyzer.pieceExists({pieces: pieces, x: (curx - 1), y: cury});
+				if(rp != null && rp.color != piece.color && rp.pieceType == "pawn" && rp.justMoved && rp.numOfMoves == 1 && (rp.y == 3 || rp.y == 4)){
 					var special = {
 						type: "en",
 						enx : curx - 1,
@@ -132,14 +212,121 @@ CHESSAPP.Analyzer ={
 				}
 				break;
 			case "king":
-				mk(curx - 1, cury + 1, true, true);
-				mk(curx - 1, cury, true, true);
-				mk(curx - 1, cury - 1, true, true);
-				mk(curx + 1, cury + 1, true, true);
-				mk(curx + 1, cury, true, true);
-				mk(curx + 1, cury - 1, true, true);
-				mk(curx, cury + 1, true, true);
-				mk(curx, cury - 1, true, true);
+			if(stg.castleTest){
+					//check for castling...
+
+					var leftCastle = true,
+						rightCastle = true;
+
+					//king has moved
+					if(piece.numOfMoves > 0 || CHESSAPP.GamePlay.kingInCheck == piece.color){
+						leftCastle = false;
+						rightCastle = false;
+					}
+					else{
+						//check left side
+
+						//check if those spaces are being attacked
+						if(this.castlingInfo[piece.color].left){
+							//piece is attacking left side, this is invalid
+							leftCastle = false;
+						}
+						else{
+							//check that spaces are empty and find the rooks on both sides
+							var leftP;//will hold rook
+							for(var i = 1; i <= 4; i++){
+								leftP = CHESSAPP.Analyzer.pieceExists({pieces: pieces, x: (curx - i), y : cury});
+								if(i < 4 && leftP != null){
+									//not possible, piece in the way
+									leftCastle = false;
+								}
+							}
+							//leftP should hold the left most piece
+							if(leftP != null && leftP.pieceType == "rook" && leftP.color == piece.color && leftP.numOfMoves == 0){
+								//valid
+							}
+							else{
+								leftCastle = false;
+							}
+						}
+						//check right side
+						//check if those spaces are being attacked
+						if(this.castlingInfo[piece.color].right){
+							//piece is attacking left side, this is invalid
+							rightCastle = false;
+						}
+						else{
+							//check that spaces are empty and find the rooks on both sides
+							var rightP;//will hold rook
+							for(var i = 1; i <= 3; i++){
+								rightP = CHESSAPP.Analyzer.pieceExists({pieces: pieces, x: (curx + i), y : cury});
+								if(i < 3 && rightP != null){
+									//not possible, piece in the way
+									rightCastle = false;
+								}
+							}
+							//rightP should hold the right most piece
+							if(rightP != null && rightP.pieceType == "rook" && rightP.color == piece.color && rightP.numOfMoves == 0){
+								//valid
+							}
+							else{
+								rightCastle = false;
+							}
+						}
+						
+					}
+					if(leftCastle){
+						//should be valid
+						//now make that move
+						var special = {
+							type:"castle",
+							side: "left",
+							rookx : curx - 4,
+							rooky : cury,
+							rooktox : curx - 1,
+							rooktoy : cury
+						};
+						mk(curx - 2, cury, true, false, special);
+					}
+					if(rightCastle){
+						//should be valid
+						//now make that move
+						var special = {
+							type:"castle",
+							side: "right",
+							rookx : curx + 3,
+							rooky : cury,
+							rooktox : curx + 1,
+							rooktoy : cury
+						};
+						mk(curx + 2, cury, true, false, special);
+					}
+					if(leftCastle && !stg.checkTest){
+							console.log(leftCastle + " for castling color " + piece.color + " left");
+					}
+					else if(!leftCastle && !stg.checkTest){
+							console.log(leftCastle + " for castling color " + piece.color + " left"); 
+					}
+
+					if(rightCastle && !stg.checkTest){
+							console.log(rightCastle + " for castling color " + piece.color + " right");
+					}
+					else if(!rightCastle && !stg.checkTest){
+							console.log(rightCastle + " for castling color " + piece.color + " right"); 
+					}
+				}
+				else{
+					//normal checks
+					mk(curx - 1, cury + 1, true, true);
+					mk(curx - 1, cury, true, true);
+					mk(curx - 1, cury - 1, true, true);
+					mk(curx + 1, cury + 1, true, true);
+					mk(curx + 1, cury, true, true);
+					mk(curx + 1, cury - 1, true, true);
+					mk(curx, cury + 1, true, true);
+					mk(curx, cury - 1, true, true);
+				}
+
 				break;
 			case "knight":
 				mk(curx - 1, cury + 2, true, true);
@@ -248,7 +435,7 @@ CHESSAPP.Analyzer ={
 			resp.valid = false;
 			return resp;
 		}
-		var pieceExists;//piece to be attackec
+		var pieceExists = null;//piece to be attackec
 		if(special == null){
 			//normal move
 	       		pieceExists = this.pieceExists({pieces: pieces, x : x, y : y, checkTest: stg.checkTest});
@@ -261,6 +448,13 @@ CHESSAPP.Analyzer ={
 				console.log("Checking en passant piece");
 				console.log(pieceExists);
 			}
+		}
+		else if(special.type == "castle"){
+			//the checkTest is not necessary because checks have already been made for if the squares to this castling side are
+			//being attacked, and moving cannot introduce any new attacks since this is on the edge of the board
+			//therefore nothing to do here :P
+			resp.movable = true;
+			return resp;
 		}
 		if(pieceExists){
 			//check if this is a valid location for possible option
@@ -316,7 +510,8 @@ CHESSAPP.Analyzer ={
 					pieceIndex: pieces.indexOf(piece), 
 					val: pieceObj
 				}
-			];             
+			];      
+
 			if(resp.attackable){
 				//add override
 				pieceOverrides.push({
@@ -324,12 +519,14 @@ CHESSAPP.Analyzer ={
 					val: null
 				});
 			}
+
+
 			var newPieces = this.copyAndReplace({pieces: pieces, overrides: pieceOverrides});
 			//console.log(newPieces);
 
 			if(this.checkTest({pieces: newPieces, color: piece.color})){
 				//invalid move because it leaves the king in check
-				console.log("YOUR ARGUMENT IS INVALID");
+				//	console.log("YOUR ARGUMENT IS INVALID");
 				resp.valid = false;
 			}
 
@@ -419,6 +616,7 @@ var toFile = function(num){
 	return String.fromCharCode(96+parseInt(num));
 };
 
+
 var toAbbr = function(pieceType){
 	switch(pieceType){
 		case "pawn":
@@ -441,6 +639,10 @@ var toAbbr = function(pieceType){
 			break;
 	}
 };
+
+that.getTurn = function(){
+	return _settings.turn;
+}
 /*
  * adds the move specified to the public moveList array, and updates the UI with the new move
  * @param move
@@ -542,9 +744,6 @@ that.cellClicked = function(x,y){
 				local: true,
 				special: opt.special
 			}
-			if(opt){
-				console.log(opt);
-			}
 			that.movePieceTo(moveOptions);
 		}       
 	}
@@ -645,34 +844,28 @@ that.setUpBoard = function(){
 	//create pieces
 	that.pieces = [
 	{
-		x: 7,
+			x: 0,
 			y: 0,
 			color: 'B',
 			pieceType: "rook"
+	},
+	{
+		x: 0,
+		y: 7,
+		color: 'W',
+		pieceType: "rook"
+	},
+	{
+		x: 7,
+		y: 0,
+		color: 'B',
+		pieceType: "rook"
 	},
 	{
 		x: 7,
 		y: 7,
 		color: 'W',
 		pieceType: "rook"
-	},
-	{
-		x: 6,
-		y: 7,
-		color: 'W',
-		pieceType: "bishop"
-	},
-	{
-		x: 3,
-		y: 7,
-		color: 'W',
-		pieceType: "queen"
-	},
-	{
-		x: 3,
-		y: 0,
-		color: 'B',
-		pieceType: "queen"
 	},
 	{
 		x: 4,
@@ -703,6 +896,12 @@ that.setUpBoard = function(){
 		y: 3,
 		color: 'W',
 		pieceType: "pawn"
+	},
+	{
+		x: 3,
+		y: 0,
+		color: 'B',
+		pieceType: "queen"
 	}
 	];
 	//add pawns
@@ -715,7 +914,7 @@ that.setUpBoard = function(){
 			pieceType: "pawn"
 		});
 	}
-	for(var p = 0; p < 8; p++)
+	for(var p = 0; p < 0; p++)
 	{
 		that.pieces.push({
 			x : p,
@@ -764,12 +963,15 @@ that.updateOptions = function(){
 			}
 		}
 	}
+	
 	if(response.kingInCheck){
 		check = response.kingInCheck;
+
 	}
 	if(stalemate && check){
 		checkmate = check;
 	}
+
 
 	var local = (currentColor == _settings.onlineColor),
 	    msg = "",
@@ -860,6 +1062,18 @@ that.movePieceTo = function(stg){
 		if(stg.special.type=="en"){
 			//get the en passant piece
 			pieceAtLocation = CHESSAPP.Analyzer.pieceExists({pieces:that.pieces, x:stg.special.enx, y:stg.special.eny});
+		}
+		else if(stg.special.type=="castle"){
+			console.log("Castling");
+			//move that rook
+			var rook = CHESSAPP.Analyzer.pieceExists({pieces:that.pieces, x:stg.special.rookx, y:stg.special.rooky});
+
+			rook.y =  stg.special.rooktoy;
+			rook.x = stg.special.rooktox;
+			rook.numOfMoves++;
+			rook.justMoved = true;
+			CHESSAPP.ui.addPiece(rook, that.cells[rook.x][rook.y]);
+
 		}
 	}
 	//check if there is a piece of the opposing color occupying this space
