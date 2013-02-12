@@ -398,7 +398,7 @@ CHESSAPP.ui = {
 		for(; i<max ; i++){
 			var p = pieces[i];
 			var img = new Image();
-			img.src = CHESSAPP.globalSettings.imageDir + p.color + "_" + p.pieceType + ".svg";
+			img.src = CHESSAPP.globalSettings.imageDir + p.color + "_" + p.pieceType + ".png";
 			p.reference = img;
 			cells[p.x][p.y].reference.appendChild(img);
 		}
@@ -406,7 +406,7 @@ CHESSAPP.ui = {
 	updatePiece : function(piece){
 		//this is only used when a pawn is promoted, to update the image
 		var p = piece;
-		p.reference.src = CHESSAPP.globalSettings.imageDir + p.color + "_" + p.pieceType + ".svg";
+		p.reference.src = CHESSAPP.globalSettings.imageDir + p.color + "_" + p.pieceType + ".png";
 	},
 	boardClicked : function(e){
 		var x,y, cellReference, pieceClicked = false;
