@@ -2,10 +2,10 @@ var app = require('http').createServer(handler),
     io = require('socket.io').listen(app),
 	ws = require("websocket-server"),
 	fs = require("fs"),
-	url = require("url");
-
-app.listen(8000);
-console.log("HTTP server listening on port 8000");
+	url = require("url"),
+	port = process.env.PORT || 5000;
+app.listen(port);
+console.log("HTTP server listening on port " + port);
 
 function handler(req, resp){
 		var r_url = url.parse(req.url);
