@@ -1343,7 +1343,7 @@ CHESSAPP.onlinePlay = {
 		var op = CHESSAPP.onlinePlay;
 		var hostPort = "http://localhost:8000";
 		if(true){
-			hostPort = "http://livechess.herokuapp.com:46164");
+			hostPort = "http://livechess.herokuapp.com:46164";
 		}
 		this.sk = io.connect(hostPort);
 		CHESSAPP.ui.statusUpdate({type: 'fb', msg: 'Searching for partner...'});
