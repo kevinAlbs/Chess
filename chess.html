@@ -16,14 +16,34 @@
 				padding: 0px;
 				font-family: 'Droid Sans', sans-serif;
 			}
-			#container{
+			.clearfix:after {
+				content: ".";
+				display: block;
+				clear: both;
+				visibility: hidden;
+				line-height: 0;
+				height: 0;
+			}
+
+			.clearfix {
+				display: inline-block;
+			}
+
+			html[xmlns] .clearfix {
+				display: block;
+			}
+
+			* html .clearfix {
+				height: 1%;
+			}
+			#wrapper, #container{
 				width: 960px;
 				margin: 0px auto;
 				position: relative;
 			}
 			.overlay{
 				width: 100%;
-				height: 665px;
+				height: 684px;
 				display: none;
 				background: rgba(255,255,255, .65);
 				position: absolute;
@@ -211,14 +231,21 @@
 			color: #54686b;
 			margin-right: 5px;
 			}
+			footer{
+			}
 		</style>
 
 
 	</head>
 	<body>
-
-		<div id="container">
-		</div><!--/#container -->
+		<div id="wrapper">
+			<div id="container" class="clearfix">
+			</div><!--/#container -->
+			<footer id="pageFooter">
+			<small>Developed by <a href="http://kevinalbs.com" target="_blank">Kevin Albertson</a></small><br/>
+			<small>View the source on <a href="https://github.com/kevinAlbs/Chess" target="_blank">Github</a></small>
+			</footer>
+		</div><!--/#wrapper -->
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			/**
