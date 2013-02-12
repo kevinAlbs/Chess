@@ -9,7 +9,12 @@ console.log("HTTP server listening on port " + port);
 
 function handler(req, resp){
 		var r_url = url.parse(req.url);
-		if(r_url.pathname === "/")
+		if(r_url.pathname.substring(1) === "getport"){
+			resp.writeHead(200, {"Content-Type" : "text/plain"});
+			resp.write("" + port);
+			resp.end();
+		}
+		else if(r_url.pathname === "/")
 		{
 			resp.writeHead(200, {"Content-Type" : "text/html"});
 			var clientui = fs.readFileSync("chess.html");
