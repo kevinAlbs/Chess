@@ -1341,7 +1341,11 @@ CHESSAPP.onlinePlay = {
 	   */
 	connect: function(stg, callback){
 		var op = CHESSAPP.onlinePlay;
-		this.sk = io.connect('http://localhost:8000');
+		var hostPort = "http://localhost:8000";
+		if(true){
+			hostPort = "http://livechess.herokuapp.com:46164");
+		}
+		this.sk = io.connect(hostPort);
 		CHESSAPP.ui.statusUpdate({type: 'fb', msg: 'Searching for partner...'});
 		this.sk.emit('setup', {color: stg.preferredColor});
 		this.sk.on("chat", function(data){
