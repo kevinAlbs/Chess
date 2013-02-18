@@ -6,46 +6,36 @@
  * Warm regards,
  * Kevin
  */
-CHESSAPP.ui = {
-	chessboard: null, //element where chessboard is :P
-	selection : null, //element where promotion selection box is
-	color : null, //element where color selection box is
-	initial : null, //element where initial selection box is
-	overlay: null, //overlay element
-	overlayScreens : {}, //list of overlay screens, selection, settings, etc. overlay screen object has these props: elem, onShow, onHide
-	status : null,//element where status updates are shown
-	statusWindow : null,//inner area in status where text actually is
-	lineSize: 0,//size of each paragraph line (for scrolling in status)
-	promotion_data : null,//stores the piece to be promoted, and the callback while the user is choosing a piece
-	chatWindow : null,
-	chatInput: null,
-	online: false,
-	preferredColor: "W",
-	chatActive: false,
-	initSub: null,//subscriber to the initial
-	elementsCreated : false,//tells whether the necessary elements are in place (at first no, but created in init)
-	init : function(stg){
-		this.container = stg.container;
-		if(!this.elementsCreated){
-			//create the UI here... ugh
-			this.createStatus();
-			this.createOverlay();
-			this.createChat();
-			elementsCreated = true;
-		}
-		this.toggleOverlay(true, "initial");
-		return this.drawCells(); //not sure what to do about this right now
-	},
-	//UI creation methods follow
-	createChat: function(chatID){
-		this.chatContainer = document.createElement("div");
-		this.chatContainer.className = "chat";
-		this.chatInput = document.createElement("input");
-		this.chatWindow = document.createElement("div");
-		this.chatWindow.className = "chatContainer";
+CHESSAPP.ui = (function(){
+	var that = {},//function object
+	chessboard= null, //element where chessboard is :P
+	selection = null, //element where promotion selection box is
+	color = null, //element where color selection box is
+	initial = null, //element where initial selection box is
+	overlay= null, //overlay element
+	overlayScreens = {}, //list of overlay screens, selection, settings, etc. overlay screen object has these props: elem, onShow, onHide
+	status = null,//element where status updates are shown
+	statusWindow = null,//inner area in status where text actually is
+	lineSize= 0,//size of each paragraph line (for scrolling in status)
+	promotion_data = null,//stores the piece to be promoted, and the callback while the user is choosing a piece
+	chatWindow = null,
+	chatInput= null,
+	online= false,
+	preferredColor= "W",
+	chatActive= false,
+	initSub= null,//subscriber to the initial
+	elementsCreated = false;//tells whether the necessary elements are in place (at first no, but created in init)
 
-		var cw = this.chatWindow,
-		    ci = this.chatInput,
+	//UI creation methods follow
+	var createChat= function(chatID){
+		chatContainer = document.createElement("div");
+		chatContainer.className = "chat";
+		chatInput = document.createElement("input");
+		chatWindow = document.createElement("div");
+		chatWindow.className = "chatContainer";
+
+		var cw = chatWindow,
+		    ci = chatInput,
 		    def = "type something and press enter";
 
 		ci.value = def;   
@@ -73,32 +63,31 @@ CHESSAPP.ui = {
 		var header = document.createElement("h2");
 		header.appendChild(document.createTextNode("chat"));
 
-		this.chatContainer.appendChild(header);
-		this.chatContainer.appendChild(cw);
-		this.chatContainer.appendChild(ci);
+		chatContainer.appendChild(header);
+		chatContainer.appendChild(cw);
+		chatContainer.appendChild(ci);
 
-		this.container.appendChild(this.chatContainer);
-	},
-	activateChat: function(){
-		this.chatActive = true;
-		CHESSAPP.utils.addClass(this.chatContainer, "active");
-	},
-	deactivateChat: function(){
-		this.chatActive = false;
-		CHESSAPP.utils.removeClass(this.chatContainer, "active");
-	},
+		container.appendChild(chatContainer);
+	};
+	var activateChat= function(){
+		chatActive = true;
+		CHESSAPP.utils.addClass(chatContainer, "active");
+	};
+	var deactivateChat= function(){
+		chatActive = false;
+		CHESSAPP.utils.removeClass(chatContainer, "active");
+	};
 
-	createOverlay : function(){
-		var overlay = document.createElement("div");
+	var createOverlay = function(){
+		overlay = document.createElement("div");
 		overlay.className = "overlay";
-		this.container.appendChild(overlay);
-		this.overlay = overlay;
+		container.appendChild(overlay);
 		//create overlay screens
-		this.createSelection();
-		this.createColor();
-		this.createInitial();
-	},
-	createSelection : function(){
+		createSelection();
+		createColor();
+		createInitial();
+	};
+	var createSelection = function(){
 		var selection = document.createElement("div"),
 		frag = document.createDocumentFragment(),
 		a = document.createElement("a"),
@@ -124,14 +113,15 @@ CHESSAPP.ui = {
 		frag.appendChild(a4);
 
 		selection.appendChild(frag);
-		this.overlay.appendChild(selection);
+		overlay.appendChild(selection);
 
-		CHESSAPP.utils.bind(selection, "click", CHESSAPP.ui.promotionClicked);
+		CHESSAPP.utils.bind(selection, "click", that.promotionClicked);
 
-		this.selection = selection;
-		this.overlayScreens["selection"] = {elem: selection};
-	},
-	createColor : function(){
+		selection = selection;
+		overlayScreens["selection"] = {elem: selection};
+	};
+
+	var createColor = function(){
 		var color = document.createElement("div"),
 		frag = document.createDocumentFragment(),
 		a = document.createElement("a"),
@@ -159,16 +149,14 @@ CHESSAPP.ui = {
 		frag.appendChild(a3);
 
 		color.appendChild(frag);
-		this.overlay.appendChild(color);
+		overlay.appendChild(color);
 
-		CHESSAPP.utils.bind(color, "click", CHESSAPP.ui.preferredClicked);
+		CHESSAPP.utils.bind(color, "click", that.preferredClicked);
 
-		this.color = color;
-		this.overlayScreens["color"] = {elem: color};
-
-
-	},
-	createInitial : function(){
+		color = color;
+		overlayScreens["color"] = {elem: color};
+	};
+	createInitial = function(){
 		var initial = document.createElement("div"),
 		frag = document.createDocumentFragment(),
 		a = document.createElement("a"),
@@ -188,113 +176,17 @@ CHESSAPP.ui = {
 		frag.appendChild(a2);
 
 		initial.appendChild(frag);
-		this.overlay.appendChild(initial);
+		overlay.appendChild(initial);
 
-		CHESSAPP.utils.bind(initial, "click", CHESSAPP.ui.modeClicked);
+		CHESSAPP.utils.bind(initial, "click", that.modeClicked);
 
-		this.initial = initial;
-		this.overlayScreens["initial"] = {elem: initial};
-
-
-	},
-
-	setSelectionVisible : function(stg){
-		var val = stg.val;
-		if(val){
-			this.overlay.style.display = "block";
-			this.promotion_data = stg;
-			this.toggleOverlay(true, "selection");
-		}
-		else{
-			this.promotion_data = null;
-			this.toggleOverlay(false, "selection");
-		}
-	},
-	modeClicked: function(e){
-		e.preventDefault();
-		e.stopPropagation();
-		e = e || window.event;
-		src = e.target || e.srcElement;
-		that = CHESSAPP.ui;//why do I feel like this is terrible :(
-		if(src.nodeName.toLowerCase() == "a"){
-			//get the color
-			var val = src.getAttribute("data-mode");
-			if(val == "offline"){
-				that.online = false;
-			}
-			else if(val == "online"){
-				that.online = true;
-			}
-		}
-		if(that.online){
-			//show preferredClicked
-			that.toggleOverlay(true, "color");	
-		}
-		else{
-			//send prompt to play
-			that.toggleOverlay(false);	
-			that.readyToPlay();
-		}
-	},
-	preferredClicked : function(e){
-		e.preventDefault();
-		e.stopPropagation();
-		e = e || window.event;
-		src = e.target || e.srcElement;
-		var that = CHESSAPP.ui;//why do I feel like this is terrible :(
-		if(src.nodeName.toLowerCase() == "a"){
-			//get the color
-			var val = src.getAttribute("data-color");
-			if(val){
-				console.log(val + " color");
-				//call subscriber
-				if(initSub == null){
-					console.log("Init sub is null");
-				}
-				else{
-					that.preferredColor = val;
-					that.readyToPlay();
-				}
-			}
-			//remember this isn't this :P
-			CHESSAPP.ui.toggleOverlay(false);
-		}
-	},
-	readyToPlay: function(){
-		if(this.online){
-			this.activateChat();
-		}
-		else{
-			this.deactivateChat();
-		}
-		initSub.apply(window, [{color: this.preferredColor, online: this.online}]);
-	},
-	onInitialChoice: function(callback){
-		//allows CHESSAPP.GamePlay to hook onto event when user picks initial settings
-		initSub = callback;
-	},
-	promotionClicked : function(e){
-		e.preventDefault();
-		e.stopPropagation();
-		e = e || window.event;
-		src = e.target || e.srcElement;
-		var that = CHESSAPP.ui;//why do I feel like this is terrible :(
-		if(src.nodeName.toLowerCase() == "a"){
-			//get the piece type selected
-			var val = src.getAttribute("data-pieceType");
-			if(val){
-				console.log("User selected " + val);
-				that.promotion_data.pieceType = val;
-				CHESSAPP.GamePlay.promote(CHESSAPP.ui.promotion_data);
-			}
-		}
-		return false;
-	},
-
+		initial = initial;
+		overlayScreens["initial"] = {elem: initial};
+	};
 
 	/* creates container for status and scrolling */
-	createStatus : function(statusID){
-		var status = document.createElement("div"),
+	var createStatus = function(statusID){
+		status = document.createElement("div"),
 		arrow_up = document.createElement("a"),
 		arrow_down = document.createElement("a");
 
@@ -302,7 +194,7 @@ CHESSAPP.ui = {
 		arrow_up.className = "arrow_up";
 		arrow_down.className = "arrow_down";
 
-		this.statusWindow = new statusScroller({elem: status, maxLines: 2});
+		statusWindow = new statusScroller({elem: status, maxLines: 2});
 		CHESSAPP.utils.bind(arrow_up, "click", function(e){
 			CHESSAPP.ui.statusWindow.move(true);
 			e.preventDefault();
@@ -317,25 +209,39 @@ CHESSAPP.ui = {
 
 		status.appendChild(arrow_up);
 		status.appendChild(arrow_down);
-		this.container.appendChild(status);
-		this.status = status;
-	},
-	toggleOverlay: function(val, screen){     
-		this.overlay.style.display = val ? "block" : "none"; 
+		container.appendChild(status);
+	};
+
+	
+
+	var readyToPlay= function(){
+		if(online){
+			activateChat();
+		}
+		else{
+			deactivateChat();
+		}
+		initSub.apply(window, [{color: preferredColor, online: online}]);
+	};
+
+	
+	var toggleOverlay= function(val, screen){     
+		overlay.style.display = val ? "block" : "none"; 
 		//hide all screens
-		for(var i in this.overlayScreens){
-			if(this.overlayScreens.hasOwnProperty(i)){
-				this.overlayScreens[i].elem.style.display = "none";
+		for(var i in overlayScreens){
+			if(overlayScreens.hasOwnProperty(i)){
+				overlayScreens[i].elem.style.display = "none";
 			}
 		}
 		//show screen if there is one
 		if(val && !!screen){
-			this.overlayScreens[screen].elem.style.display = "block";
+			overlayScreens[screen].elem.style.display = "block";
 		}
-	},
+	};
+
 	//adds cells to the elem, returns an array of the cells
-	drawCells : function(){
-		var chessboard = document.createElement("div"),
+	var drawCells = function(){
+		chessboard = document.createElement("div"),
 		frag = document.createDocumentFragment(),
 		cellDiv = document.createElement("div"),
 		cells = new Array(8);
@@ -380,20 +286,52 @@ CHESSAPP.ui = {
 		chessboard.appendChild(frag);
 
 		//add chessboard to container
-		this.container.appendChild(chessboard);
+		container.appendChild(chessboard);
 		CHESSAPP.utils.bind(chessboard, "click", CHESSAPP.ui.boardClicked);
 
-
-
-		this.chessboard = chessboard;
 		//returns list of cells
 		return cells;
-	},
+	};
 
-	addMove : function(txt){
+
+
+
+
+/*
+ * Public Methods
+ */
+	that.init = function(stg){
+		container = stg.container;
+		if(!elementsCreated){
+			//create the UI here... ugh
+			createStatus();
+			createOverlay();
+			createChat();
+			elementsCreated = true;
+		}
+		toggleOverlay(true, "initial");
+		return drawCells(); //not sure what to do about this right now
+	};
+	that.addChatMessage = function(stg){
+		var prefix = (stg.color == 'W') ? "White - " : (stg.color == "B") ? "Black - " : "",
+		p = document.createElement("p"),
+		textNode = document.createTextNode(prefix + stg.msg);
+		p.appendChild(textNode);
+		chatWindow.appendChild(p);
+		chatWindow.scrollTop = chatWindow.scrollHeight;
+
+	};
+	that.addMove = function(txt){
 		console.log("Showing move:" + txt);
-	},
-	drawPieces: function(pieces, cells){
+	};
+	/*
+   this updates the status element with the user specified message
+   */
+	that.statusUpdate= function(stg){
+		stg.showTime = true;
+		statusWindow.add(stg);
+	};
+	that.drawPieces= function(pieces, cells){
 		var i=0, max=pieces.length;
 		for(; i<max ; i++){
 			var p = pieces[i];
@@ -402,13 +340,118 @@ CHESSAPP.ui = {
 			p.reference = img;
 			cells[p.x][p.y].reference.appendChild(img);
 		}
-	},
-	updatePiece : function(piece){
+	};
+	that.addPiece = function(piece, cell){
+		cell.reference.appendChild(piece.reference);
+	};
+	that.updatePiece = function(piece){
 		//this is only used when a pawn is promoted, to update the image
 		var p = piece;
 		p.reference.src = CHESSAPP.globalSettings.imageDir + p.color + "_" + p.pieceType + ".png";
-	},
-	boardClicked : function(e){
+	};
+	that.addOptionStyles = function(cell, userSettings){
+		var stg = {
+			attackable: true,
+			movable: true
+		};        
+		CHESSAPP.utils.extend(stg, userSettings);
+
+		if(stg.attackable){
+			CHESSAPP.utils.addClass(cell.reference, "attackable");
+		}
+
+		if(stg.movable){
+			CHESSAPP.utils.addClass(cell.reference, "movable");
+		}
+	};
+	that.clearOptionStyles = function(cell){
+		CHESSAPP.utils.removeClass(cell.reference,"movable");
+		CHESSAPP.utils.removeClass(cell.reference,"attackable");
+	};
+	that.onInitialChoice= function(callback){
+		//allows CHESSAPP.GamePlay to hook onto event when user picks initial settings
+		initSub = callback;
+	};
+	that.setSelectionVisible = function(stg){
+		var val = stg.val;
+		if(val){
+			overlay.style.display = "block";
+			promotion_data = stg;
+			toggleOverlay(true, "selection");
+		}
+		else{
+			promotion_data = null;
+			toggleOverlay(false, "selection");
+		}
+	};
+	that.modeClicked= function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		e = e || window.event;
+		src = e.target || e.srcElement;
+		if(src.nodeName.toLowerCase() == "a"){
+			//get the color
+			var val = src.getAttribute("data-mode");
+			if(val == "offline"){
+				online = false;
+			}
+			else if(val == "online"){
+				online = true;
+			}
+		}
+		if(online){
+			//show preferredClicked
+			toggleOverlay(true, "color");	
+		}
+		else{
+			//send prompt to play
+			toggleOverlay(false);	
+			readyToPlay();
+		}
+	};
+
+	that.preferredClicked = function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		e = e || window.event;
+		src = e.target || e.srcElement;
+		if(src.nodeName.toLowerCase() == "a"){
+			//get the color
+			var val = src.getAttribute("data-color");
+			if(val){
+				console.log(val + " color");
+				//call subscriber
+				if(initSub == null){
+					console.log("Init sub is null");
+				}
+				else{
+					preferredColor = val;
+					readyToPlay();
+				}
+			}
+			//remember this isn't this :P
+			toggleOverlay(false);
+		}
+	};
+	that.promotionClicked = function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		e = e || window.event;
+		src = e.target || e.srcElement;
+		if(src.nodeName.toLowerCase() == "a"){
+			//get the piece type selected
+			var val = src.getAttribute("data-pieceType");
+			if(val){
+				console.log("User selected " + val);
+				promotion_data.pieceType = val;
+				CHESSAPP.GamePlay.promote(promotion_data);
+			}
+		}
+		return false;
+	};
+
+
+	that.boardClicked = function(e){
 		var x,y, cellReference, pieceClicked = false;
 		e = e || window.event;
 		src = e.target || e.srcElement;
@@ -432,51 +475,8 @@ CHESSAPP.ui = {
 				}
 			}
 		}
-	},
-	addOptionStyles : function(cell, userSettings){
-		var stg = {
-			attackable: true,
-			movable: true
-		};        
-		CHESSAPP.utils.extend(stg, userSettings);
-
-		if(stg.attackable){
-			CHESSAPP.utils.addClass(cell.reference, "attackable");
-		}
-
-		if(stg.movable){
-			CHESSAPP.utils.addClass(cell.reference, "movable");
-		}
-	},
-
-	clearOptionStyles : function(cell){
-		CHESSAPP.utils.removeClass(cell.reference,"movable");
-		CHESSAPP.utils.removeClass(cell.reference,"attackable");
-	},
-
-	addPiece : function(piece, cell){
-		cell.reference.appendChild(piece.reference);
-	},
-
-
-	/*
-	   this updates the status element with the user specified message
-	   */
-	statusUpdate: function(stg){
-		stg.showTime = true;
-		this.statusWindow.add(stg);
-	},
-
-	addChatMessage : function(stg){
-		var prefix = (stg.color == 'W') ? "White - " : (stg.color == "B") ? "Black - " : "",
-		p = document.createElement("p"),
-		textNode = document.createTextNode(prefix + stg.msg);
-		p.appendChild(textNode);
-		this.chatWindow.appendChild(p);
-		this.chatWindow.scrollTop = this.chatWindow.scrollHeight;
-
-	},
-
-};
+	};
+	return that;
+}());
 
 
