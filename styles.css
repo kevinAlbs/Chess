@@ -110,14 +110,37 @@ html[xmlns] .clearfix {
 .selection a:hover, .color a:hover, .initial a:hover{
 background: #CCC;
 }
-.chat{
+.rightCol{
+	float: right;
+}
+.chat, .movelist{
 width: 300px;
 height: 250px;
 padding: 20px;
 min-height: 20px;
 border: 2px #bbc8f0 solid;
-float: right;
 display: none;
+margin-bottom: 16px;
+}
+.movelist{
+	display: block;
+}
+.movelist table{
+	width: 100%;
+	border-collapse: collapse;
+}
+.movelist table tr td{
+	width: 45%;
+	font-size: 12px;
+	margin: 0px;
+	padding: 0px;
+	background: rgb(234, 237, 247);
+}
+.movelist table tr:nth-child(2n+1) td{
+	background: #bbc8f0;
+}
+.movelist table tr td:first-child{
+	width: 10%;
 }
 .chat.active{
 	display: block;
@@ -145,12 +168,12 @@ font-style: normal;
 background: #fff4d7;
 color: #0b2a41;
 }
-.chat h2{
+.movelist h2, .chat h2{
 font-weight: normal;
 color: #6f7da3;
 font-size: 24px;
 }
-.chat .chatContainer{
+.chat .chatContainer, .movelist .movelistContainer{
 overflow: auto;
 height: 165px;
 margin: 15px 0px;

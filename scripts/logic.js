@@ -1367,10 +1367,13 @@ CHESSAPP.onlinePlay = {
 		});
 		this.sk.on('opposing_move', function(data){
 			CHESSAPP.GamePlay.onlineMove(data);
+			CHESSAPP.GamePlay.statusUpdate({type: 's', msg: "It's your move!"});
 		});
 	},
 	sendMove: function(stg){
 		this.sk.emit('movemade', stg);
+		CHESSAPP.GamePlay.statusUpdate({type: 's', msg: "Move made, waiting for partner"});
+		console.log("Sending messsage");
 	},
 	sendChat: function(stg){
 		stg.local = false;//because the recieved message will not be local

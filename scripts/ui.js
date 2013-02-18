@@ -1,17 +1,18 @@
-/* Dearest source viewer, I made this a while ago and looking back on it, I have some regrets to say the least. I want cleaner code, but I don't want to spend
- * all of my time cleaning something that is on the brink of being "finished". Therefore, I will keep the code the way it is for now, and if this ever
- * gets remotely popular I shall fix some of the blatant mistakes (one being having this ui be an object literal, I have everything public!). Therefore
- * for anyone looking on my code in disgust, I sincerely apologize and hope to fix this one day...
- *
- * Warm regards,
- * Kevin
- */
+/**
+Funcionality for user interface, creates dialogs, responds to click events, manages status bar, message box, and move box
+
+@module ui
+**/
 CHESSAPP.ui = (function(){
-	var that = {},//function object
+	var that = {},
 	chessboard= null, //element where chessboard is :P
+	rightCol = null,
 	selection = null, //element where promotion selection box is
 	color = null, //element where color selection box is
 	initial = null, //element where initial selection box is
+	moveList = null,//table of moves
+	moveListCurRow = null, //current row which move is being displayed
+	rowCount = 1,//move row count
 	overlay= null, //overlay element
 	overlayScreens = {}, //list of overlay screens, selection, settings, etc. overlay screen object has these props: elem, onShow, onHide
 	status = null,//element where status updates are shown
@@ -26,6 +27,11 @@ CHESSAPP.ui = (function(){
 	initSub= null,//subscriber to the initial
 	elementsCreated = false;//tells whether the necessary elements are in place (at first no, but created in init)
 
+	var createRightCol = function(){
+		rightCol = document.createElement("div");
+		rightCol.className = "rightCol";
+		container.appendChild(rightCol);
+	};
 	//UI creation methods follow
 	var createChat= function(chatID){
 		chatContainer = document.createElement("div");
@@ -67,7 +73,7 @@ CHESSAPP.ui = (function(){
 		chatContainer.appendChild(cw);
 		chatContainer.appendChild(ci);
 
-		container.appendChild(chatContainer);
+		rightCol.appendChild(chatContainer);
 	};
 	var activateChat= function(){
 		chatActive = true;
@@ -77,7 +83,22 @@ CHESSAPP.ui = (function(){
 		chatActive = false;
 		CHESSAPP.utils.removeClass(chatContainer, "active");
 	};
+	var createMovelist = function(){
+		var moveListContainer = document.createElement("div"),
+			moveListScroll = document.createElement("div"),
+			header = document.createElement("h2");
 
+		moveList = document.createElement("table");
+		header.appendChild(document.createTextNode("moves"));
+		moveListContainer.className = "movelist";
+		moveListScroll.className = "scroll";
+		moveListScroll.appendChild(moveList);
+		moveListContainer.appendChild(header);
+		moveListContainer.appendChild(moveListScroll);
+		moveListCurRow = document.createElement("tr");
+		moveList.appendChild(moveListCurRow);
+		rightCol.appendChild(moveListContainer);
+	};
 	var createOverlay = function(){
 		overlay = document.createElement("div");
 		overlay.className = "overlay";
@@ -306,7 +327,9 @@ CHESSAPP.ui = (function(){
 			//create the UI here... ugh
 			createStatus();
 			createOverlay();
+			createRightCol();
 			createChat();
+			createMovelist();
 			elementsCreated = true;
 		}
 		toggleOverlay(true, "initial");
@@ -323,6 +346,26 @@ CHESSAPP.ui = (function(){
 	};
 	that.addMove = function(txt){
 		console.log("Showing move:" + txt);
+		var cell = document.createElement("td");
+		//create dom elements
+		if(CHESSAPP.GamePlay.getTurn() == "B"){
+			//this means that white just moved (first move on the row)
+			//add move count and turn
+			cell.appendChild(document.createTextNode("" + rowCount));
+			moveListCurRow.appendChild(cell);
+			cell = document.createElement("td");
+			cell.appendChild(document.createTextNode(txt));
+			moveListCurRow.appendChild(cell);
+		}
+		else{
+			//end of row
+			cell.appendChild(document.createTextNode(txt));
+			moveListCurRow.appendChild(cell);
+			rowCount++;
+			//create next row
+			moveListCurRow = document.createElement("tr");
+			moveList.appendChild(moveListCurRow);
+		}
 	};
 	/*
    this updates the status element with the user specified message
