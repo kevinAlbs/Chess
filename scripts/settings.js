@@ -10,7 +10,7 @@ var CHESSAPP = {};
 CHESSAPP.globalSettings = {
 	imageDir : "images/",
 	debug : false,
-	live: false,
+	live: true,
 	port: 5000
 };
 
