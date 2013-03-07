@@ -217,12 +217,12 @@ CHESSAPP.ui = (function(){
 
 		statusWindow = new statusScroller({elem: status, maxLines: 2});
 		CHESSAPP.utils.bind(arrow_up, "click", function(e){
-			CHESSAPP.ui.statusWindow.move(true);
+			statusWindow.move(true);
 			e.preventDefault();
 			return false;
 		});
 		CHESSAPP.utils.bind(arrow_down, "click", function(e){
-			CHESSAPP.ui.statusWindow.move(false);
+			statusWindow.move(false);
 			e.preventDefault();
 			return false;
 		});
