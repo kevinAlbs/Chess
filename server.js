@@ -1,6 +1,6 @@
 var app = require('http').createServer(handler),
 io = require('socket.io').listen(app),
-ws = require("websocket-server"),
+ws = require("ws"),
 fs = require("fs"),
 url = require("url"),
 port = process.env.PORT || 5000,
