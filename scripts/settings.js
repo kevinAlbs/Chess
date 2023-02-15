@@ -11,7 +11,8 @@ CHESSAPP.globalSettings = {
 	imageDir : "images/",
 	debug : false,
 	live: false,
-	port: 5000
+	port: 5000,
+	host: "http://livechess.herokuapp.com"
 };
 
 var gameSettings = {
