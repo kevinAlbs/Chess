@@ -203,7 +203,7 @@ CHESSAPP.Analyzer ={
 						enx : curx - 1,
 						eny : cury
 					};
-					mk(curx+1, cury - 1 * flip, true, true, special);
+					mk(curx - 1, cury + 1 * flip, true, true, special);
 				}
 
 				//check if pieces in either attack location
