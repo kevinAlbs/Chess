@@ -10,9 +10,9 @@ var CHESSAPP = {};
 CHESSAPP.globalSettings = {
 	imageDir : "images/",
 	debug : false,
-	live: false,
+	live: true,
 	port: 5000,
-	host: "http://livechess.herokuapp.com"
+	host: "http://kevinalbs.com:5000"
 };
 
 var gameSettings = {
