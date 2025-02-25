@@ -12,7 +12,7 @@ CHESSAPP.globalSettings = {
 	debug : false,
 	live: true,
 	port: 5000,
-	host: "http://kevinalbs.com:5000"
+	host: "https://kevinalbs.com:5000"
 };
 
 var gameSettings = {

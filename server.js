@@ -1,6 +1,10 @@
-var app = require('http').createServer(handler),
+var fs = require("fs"),
+secrets = require("./secrets"),
+app = require('https').createServer({
+	key: fs.readFileSync(secrets.keyPath),
+	cert: fs.readFileSync(secrets.certPath)
+}, handler),
 io = require('socket.io').listen(app),
-fs = require("fs"),
 url = require("url"),
 port = process.env.PORT || 5000,
 queue = {
@@ -10,7 +14,7 @@ queue = {
 };
 
 app.listen(port);
-console.log("HTTP server listening on port " + port);
+console.log("HTTPS server listening on port " + port);
 function handler(req, resp){
 	var r_url = url.parse(req.url);
 	if(r_url.pathname.substring(1) === "getport"){
